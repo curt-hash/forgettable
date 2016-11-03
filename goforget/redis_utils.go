@@ -197,6 +197,7 @@ func UpdateDistribution(rconn redis.Conn, dist *Distribution) error {
 
 func GetField(distribution string, fields ...string) ([]interface{}, error) {
 	rdb := redisServer.GetConnection()
+	defer rdb.Close()
 
 	rdb.Send("MULTI")
 	for _, field := range fields {
@@ -210,6 +211,7 @@ func GetField(distribution string, fields ...string) ([]interface{}, error) {
 
 func GetNMostProbable(distribution string, N int) ([]interface{}, error) {
 	rdb := redisServer.GetConnection()
+	defer rdb.Close()
 
 	rdb.Send("MULTI")
 	rdb.Send("ZREVRANGEBYSCORE", distribution, "+INF", "-INF", "WITHSCORES", "LIMIT", 0, N)
@@ -221,6 +223,7 @@ func GetNMostProbable(distribution string, N int) ([]interface{}, error) {
 
 func IncrField(distribution string, fields []string, N int) error {
 	rdb := redisServer.GetConnection()
+	defer rdb.Close()
 
 	rdb.Send("MULTI")
 	for _, field := range fields {
@@ -234,6 +237,7 @@ func IncrField(distribution string, fields []string, N int) error {
 
 func GetDistribution(distribution string) ([]interface{}, error) {
 	rdb := redisServer.GetConnection()
+	defer rdb.Close()
 
 	rdb.Send("MULTI")
 	rdb.Send("GET", fmt.Sprintf("%s.%s", distribution, "_T"))
@@ -244,6 +248,7 @@ func GetDistribution(distribution string) ([]interface{}, error) {
 
 func DBSize() (int, error) {
 	rdb := redisServer.GetConnection()
+	defer rdb.Close()
 
 	data, err := redis.Int(rdb.Do("DBSIZE"))
 	return data, err
